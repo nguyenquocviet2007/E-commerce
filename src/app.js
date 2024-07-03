@@ -15,7 +15,9 @@ app.use(compression()) // giam tieu ton bang thong
 
 
 // init database
-
+require('./databases/init.mongodb')
+const {checkOverload} = require('./helpers/check.connect')
+checkOverload()
 // init router
 app.get('/', (req, res, next) => {
     return res.status(200).json({
