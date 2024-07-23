@@ -1,8 +1,9 @@
 'use strict'
 
+require('dotenv').config()
 const { default: mongoose } = require("mongoose")
-
-const connectString = `mongodb+srv://vietnguyen200701:Sp7zYe2r1RaKGlW4@ecommerce.scjxten.mongodb.net/?retryWrites=true&w=majority&appName=ecommerce`
+const {db: {host, port, name}} = require('../configs/config.mongodb')
+const connectString = `mongodb://${host}:${port}/${name}`
 const {countConnect} = require('../helpers/check.connect')
 
 class Database {

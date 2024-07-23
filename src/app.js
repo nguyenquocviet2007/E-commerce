@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const morgan = require('morgan');
 const app = express();
@@ -12,18 +13,18 @@ app.use(morgan("dev"))
 // app.use(morgan("tiny")) // ngan hon nua
 app.use(helmet())
 app.use(compression()) // giam tieu ton bang thong 
+app.use(express.json())
+app.use(express.urlencoded({
+    extended: true
+}))
 
 
 // init database
 require('./databases/init.mongodb')
-const {checkOverload} = require('./helpers/check.connect')
-checkOverload()
+// const {checkOverload} = require('./helpers/check.connect')
+// checkOverload()
 // init router
-app.get('/', (req, res, next) => {
-    return res.status(200).json({
-        message: "Welcome to Nodejs"
-    })
-})
+app.use('', require('./routes'))
 // handle error
 
 module.exports = app;

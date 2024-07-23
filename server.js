@@ -1,8 +1,8 @@
 const app = require("./src/app")
 
-const PORT = 8080
+const PORT = process.env.PORT_DEV || 8081
 
-const server = app.listen(8080, () => {
+const server = app.listen(PORT, () => {
     console.log(`WSV E-Commerce start with port ${PORT}`)
 })
 
