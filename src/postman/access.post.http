@@ -4,9 +4,10 @@
 
 POST {{url_dev}}/shop/signup
 Content-Type: application/json
+x-api-key: debdf89606eb89ce3b4db16686ffb50186b9f34082db2776a5d7d0ef357bddb9b01570499e433366fd9c4ab71231d10b7990e7496587c0b1c9b3cf6a88a63266
 
 {
-    "name": "Gundam Shop",
-    "email": "gundamshop@gmail.com",
+    "name": "Lego Shop",
+    "email": "legoshop@gmail.com",
     "password": "quocviet01"
 }
