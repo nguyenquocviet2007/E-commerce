@@ -3,9 +3,9 @@ const shopModel = require('../models/shop.model')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const KeyTokenService = require('./keyToken.service')
-const { createTokenPair } = require('../auth/authUtils')
+const { createTokenPair, verifyJWT } = require('../auth/authUtils')
 const { getInforData } = require('../utils')
-const { BadRequestRequestError, ConflictRequestError, AuthFailureError } = require('../core/error.response')
+const { BadRequestRequestError, ConflictRequestError, AuthFailureError, ForbidentError } = require('../core/error.response')
 const { findByEmail } = require('./shop.service')
 const RoleShop = {
     SHOP: 'SHOP',
@@ -15,6 +15,48 @@ const RoleShop = {
 }
 
 class AccessService {
+
+    static handleRefreshToken = async (refreshToken) => {
+        // Check token used?
+        const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken)
+
+        if(foundToken) {
+            // Decode xem la ai?
+            const {userId, email} = await verifyJWT(refreshToken, foundToken.privateKey)
+            console.log('[1]--', {userId, email})
+            // Xoa
+            await KeyTokenService.removeRefreshTokenById(userId)
+            throw new ForbidentError('Something went wrong! Please re-login')
+        }
+
+        const holderToken = await KeyTokenService.findByRefreshToken(refreshToken)
+        if(!holderToken) throw new AuthFailureError('Shop is not registered!')
+
+        const {userId, email} = await verifyJWT(refreshToken, holderToken.privateKey)
+        console.log('[2]--', {userId, email})
+
+        const foundShop = await findByEmail({email})
+        if(!foundShop) throw new AuthFailureError('Shop is not registered!')
+        
+        // Tao 1 cap token moi
+        const tokens = await createTokenPair({userId, email}, holderToken.publicKey, holderToken.privateKey)
+
+        // Update token
+        await holderToken.updateOne({
+            $set: {
+                refreshToken: tokens.refreshToken
+            },
+            $addToSet: {
+                refreshTokensUsed: refreshToken // add token da su dung vao arary de tao token moi
+            }
+        })
+
+        return {
+            user: {userId, email},
+            tokens
+        }
+    }
+
     static signUp = async ({name, email, password}) => {
         try {
             //step 1: Check email exist?

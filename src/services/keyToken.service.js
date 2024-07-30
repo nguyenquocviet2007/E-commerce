@@ -22,12 +22,24 @@ class KeyTokenService {
         }
     }
 
+    static findByRefreshTokenUsed = async (refreshToken) => {
+        return await keyTokenModel.findOne({refreshTokensUsed: refreshToken}).lean()
+    }
+
+    static findByRefreshToken = async (refreshToken) => {
+        return await keyTokenModel.findOne({refreshToken: refreshToken})
+    }
+
     static findByUserId = async(userId) => {
         return await keyTokenModel.findOne({user: ObjectId.createFromHexString(userId)}).lean()
     }
 
     static removeKeyById = async (id) => {
         return await keyTokenModel.deleteOne(id)
+    }
+
+    static removeRefreshTokenById = async (userId) => {
+        return await keyTokenModel.deleteOne({user: ObjectId.createFromHexString(userId)})
     }
 }
 
