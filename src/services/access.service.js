@@ -16,6 +16,39 @@ const RoleShop = {
 
 class AccessService {
 
+    static handleRefreshTokenV2 = async ({refreshToken, user, keyStore}) => {
+
+        const {userId, email} = user;
+
+        if(keyStore.refreshTokensUsed.includes(refreshToken)) {
+            await KeyTokenService.removeRefreshTokenById(userId)
+            throw new ForbidentError('Something went wrong! Please re-login') 
+        }
+
+        if(keyStore.refreshToken !== refreshToken) if(!holderToken) throw new AuthFailureError('Shop is not registered!')
+
+        const foundShop = await findByEmail({email})
+        if(!foundShop) throw new AuthFailureError('Shop is not registered!')
+            
+            // Tao 1 cap token moi
+        const tokens = await createTokenPair({userId, email}, keyStore.publicKey, keyStore.privateKey)
+    
+            // Update token
+        await keyStore.updateOne({
+            $set: {
+                    refreshToken: tokens.refreshToken
+            },
+            $addToSet: {
+                refreshTokensUsed: refreshToken // add token da su dung vao arary de tao token moi
+            }
+        })
+    
+        return {
+            user,
+            tokens
+        }
+    }
+
     static handleRefreshToken = async (refreshToken) => {
         // Check token used?
         const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken)
@@ -23,7 +56,6 @@ class AccessService {
         if(foundToken) {
             // Decode xem la ai?
             const {userId, email} = await verifyJWT(refreshToken, foundToken.privateKey)
-            console.log('[1]--', {userId, email})
             // Xoa
             await KeyTokenService.removeRefreshTokenById(userId)
             throw new ForbidentError('Something went wrong! Please re-login')
@@ -33,7 +65,6 @@ class AccessService {
         if(!holderToken) throw new AuthFailureError('Shop is not registered!')
 
         const {userId, email} = await verifyJWT(refreshToken, holderToken.privateKey)
-        console.log('[2]--', {userId, email})
 
         const foundShop = await findByEmail({email})
         if(!foundShop) throw new AuthFailureError('Shop is not registered!')
