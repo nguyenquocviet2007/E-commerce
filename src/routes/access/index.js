@@ -5,7 +5,7 @@ const accessController = require('../../controllers/access.controller')
 const router = express.Router()
 
 const {asyncHandler} = require('../../auth/checkAuth')
-const { authentication, authenticationV2 } = require('../../auth/authUtils')
+const { authenticationV2 } = require('../../auth/authUtils')
 
 
 
