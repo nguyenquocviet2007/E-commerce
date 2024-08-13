@@ -26,11 +26,22 @@ class ProductController {
     }
 
     unPublishProductByShop = async (req, res, next) => {
+
         new SuccessResponse({
             message: 'UnPublished Product Successfully!',
             metadata: await ProductServiceAdvance.unPublishProductByShop({
                 product_shop: req.user.userId,
                 product_id: req.params.id
+            })
+        }).send(res)
+    }
+
+    updateProduct = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Update Product Successfully!',
+            metadata: await ProductServiceAdvance.updateProduct(req.body.product_type, req.params.product_id, {
+                ...req.body,
+                product_shop: req.user.userId
             })
         }).send(res)
     }
