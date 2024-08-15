@@ -13,6 +13,7 @@ const {
     updateProductById
 } = require('../models/repositories.js/product.repo')
 const { removeUndefineObject, updateNestedObjectParser } = require('../utils')
+const { insertInventory } = require('../models/repositories.js/inventory.repo')
 // define Factory class to create product
 
 class ProductFactory {
@@ -91,7 +92,18 @@ class Product {
     }
 
     async createProduct(product_id) {
-        return await product.create({...this, _id: product_id})
+        const newProduct = await product.create({...this, _id: product_id})
+
+        if(newProduct) {
+            // Insert Inventory
+            await insertInventory({
+                product_id: newProduct._id,
+                shop_id: this.product_shop,
+                stock: this.product_quantity
+            })
+        }
+
+        return newProduct
     }
     async updateProduct(product_id, bodyUpdate) {
         return await updateProductById({product_id, bodyUpdate, model: product})
@@ -112,6 +124,7 @@ class Clothing extends Product {
 
         return newProduct
     }
+
     async updateProduct(product_id) {
         // Remove attribute have value null or undefine
         // Check xem update o cho nao?
@@ -143,6 +156,23 @@ class Electronic extends Product {
 
         return newProduct
     }
+
+    async updateProduct(product_id) {
+        // Remove attribute have value null or undefine
+        // Check xem update o cho nao?
+        const objectParams = removeUndefineObject(this)
+
+        if (objectParams.product_attributes) {
+            // update child
+            await updateProductById({
+                product_id, 
+                bodyUpdate: updateNestedObjectParser(objectParams.product_attributes), 
+                model: electronic
+            })
+        }
+        const updateProduct = await super.updateProduct(product_id, updateNestedObjectParser(objectParams))
+        return updateProduct
+    }
 }
 
 class Furniture extends Product {
@@ -157,6 +187,23 @@ class Furniture extends Product {
         if(!newProduct) throw new BadRequestRequestError('Create New Product Error!')
 
         return newProduct
+    }
+
+    async updateProduct(product_id) {
+        // Remove attribute have value null or undefine
+        // Check xem update o cho nao?
+        const objectParams = removeUndefineObject(this)
+
+        if (objectParams.product_attributes) {
+            // update child
+            await updateProductById({
+                product_id, 
+                bodyUpdate: updateNestedObjectParser(objectParams.product_attributes), 
+                model: furniture
+            })
+        }
+        const updateProduct = await super.updateProduct(product_id, updateNestedObjectParser(objectParams))
+        return updateProduct
     }
 }
 
