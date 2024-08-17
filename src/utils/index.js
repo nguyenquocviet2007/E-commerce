@@ -1,9 +1,9 @@
 'use strict'
 
 const _ = require('lodash')
-const {Types} = require('mongoose')
+const {ObjectId} = require('mongodb')
 
-const convertToObjectIdMongodb = id => Types.ObjectId(id)
+const convertToObjectIdMongodb = id => ObjectId.createFromHexString(id)
 
 const getInforData = ({fields = [], object = {}}) => {
     return _.pick(object, fields)
