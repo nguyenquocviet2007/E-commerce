@@ -2,9 +2,9 @@
 
 const { BadRequestRequestError, NotFoundError } = require("../core/error.response")
 const {discount} = require('../models/discount.model')
-const { findAllDiscountCodesUnSelect, checkDiscountExitst, findAllDiscountCodesSelect } = require("../models/repositories.js/discount.repo")
+const { findAllDiscountCodesUnSelect, checkDiscountExitst, findAllDiscountCodesSelect, updateDiscount } = require("../models/repositories.js/discount.repo")
 const { findAllProducts } = require("../models/repositories.js/product.repo")
-const { convertToObjectIdMongodb } = require("../utils")
+const { convertToObjectIdMongodb, removeUndefineObject } = require("../utils")
 
 /* 
     Discount Services
@@ -69,8 +69,14 @@ class DiscountService {
         return newDiscount
     }
 
-    static async updateDiscountCode() {
-        //....
+    static async updateDiscountCode(discount_id, shop_id, bodyUpdate) {
+        const objectParams = removeUndefineObject(bodyUpdate)
+        const updatedDiscount = await updateDiscount({
+            discount_id,
+            shop_id, 
+            bodyUpdate: objectParams
+        })
+        return updatedDiscount
     }
 
     //Get all discount code available with product
@@ -183,9 +189,15 @@ class DiscountService {
         }
 
         if(discount_max_use_per_user > 0) {
-            const userUseDiscount = discount_users_use.find(user => user.user_id === user_id)
-            if(userUseDiscount) {
+            // check so lan user su dung voucher
+            // va so sanh voi so lan duoc su dung toi da cua voucher
 
+            let counter = 0;
+            discount_users_use.forEach((user) => {
+                user.user_id === user_id && counter++
+            })
+            if(counter++ >= discount_max_use_per_user) {
+                throw new BadRequestRequestError('User Already use this discount')
             }
         }
 

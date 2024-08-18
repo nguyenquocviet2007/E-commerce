@@ -1,8 +1,10 @@
 'use strict'
-
+const {ObjectId} = require('mongodb')
 const {
     getSelectData, unGetSelectData
 } = require('../../utils')
+const { discount } = require('../discount.model')
+const { NotFoundError } = require('../../core/error.response')
 
 const findAllDiscountCodesUnSelect = async({
     limit = 50, page = 1, sort = 'ctime', filter, unSelect, model
@@ -38,8 +40,28 @@ const checkDiscountExitst = async({model, filter}) => {
     return await model.findOne(filter).lean()
 }
 
+const updateDiscount = async({
+    discount_id, bodyUpdate, shop_id, isNew = true
+}) => {
+    const foundDiscount = await discount.findOne({
+        _id: ObjectId.createFromHexString(discount_id),
+        discount_shop_id: ObjectId.createFromHexString(shop_id)
+    })
+
+    if(!foundDiscount) {
+        throw new NotFoundError('Discount does not exist!')
+    }
+
+    return await discount.findByIdAndUpdate(
+        discount_id, bodyUpdate, {
+            new: isNew
+        }
+    )
+}
+
 module.exports = {
     findAllDiscountCodesSelect,
     findAllDiscountCodesUnSelect,
-    checkDiscountExitst
+    checkDiscountExitst,
+    updateDiscount
 }

@@ -13,6 +13,7 @@ router.get('/list_product_code', asyncHandler(discountController.getAllDiscountC
 
 router.use(authenticationV2)
 
+router.patch('/:discount_id', asyncHandler(discountController.updateDiscount))
 router.post('', asyncHandler(discountController.createDiscountCode))
 router.get('', asyncHandler(discountController.getAllDiscountCodes))
 
