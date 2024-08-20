@@ -53,6 +53,7 @@ class CartService {
         const userCart = await cart.findOne({
             cart_userId: userId
         })
+
         if(!userCart) {
             // tao cart
             return await CartService.createUserCart({userId, product})
@@ -63,7 +64,7 @@ class CartService {
             userCart.cart_products = [product]
             return await userCart.save()
         }
-        if(userCart) {
+        if(!userCart.cart_products.some(obj => obj['productId'] === product.productId)) {
             return await CartService.createUserCart({userId, product})
         }
 
