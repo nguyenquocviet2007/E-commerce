@@ -63,6 +63,9 @@ class CartService {
             userCart.cart_products = [product]
             return await userCart.save()
         }
+        if(userCart) {
+            return await CartService.createUserCart({userId, product})
+        }
 
         // gio hang ton tai, va co san pham => update quantity
         return await CartService.updateUserCartQuantity({userId, product})
