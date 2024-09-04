@@ -46,6 +46,19 @@ const searchProductByUser = async ({keySearch}) => {
     return results
 }
 
+const checkProductByServer = async (products) => {
+    return await Promise.all(products.map( async product => {
+        const foundProduct = await findProduct({product_id: product.productId, unSelect: ['__v', 'product_variations']})
+        if(foundProduct) {
+            return {
+                price: foundProduct.product_price,
+                quantity: product.quantity,
+                productId: product.productId
+            }
+        }
+    }))
+}
+
 const publishProductByShop = async ({product_shop, product_id}) => {
     const foundShop = await product.findOne({
         product_shop: ObjectId.createFromHexString(product_shop),
@@ -97,5 +110,6 @@ module.exports = {
     findAllProducts,
     findProduct,
     searchProductByUser,
-    updateProductById
+    updateProductById,
+    checkProductByServer
 }

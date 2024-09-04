@@ -146,6 +146,7 @@ class DiscountService {
 
     // Applies discount code
     static async getDiscountAmount({code_id, user_id, shop_id, products}) {
+        console.log(`Product::`, products)
         const foundDiscount = await checkDiscountExitst({
             model: discount,
             filter: {
@@ -178,7 +179,7 @@ class DiscountService {
         // }
         
         let totalOrder = 0
-        if(discount_min_order_value > 0) {
+        if(discount_min_order_value >= 0) {
             totalOrder = products.reduce((acc, product) => {
                 return acc + (product.quantity * product.price)
             }, 0)
