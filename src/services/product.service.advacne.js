@@ -49,7 +49,7 @@ class ProductFactory {
     // End Put
 
     // query //
-    static async findAllDraftsForShop({product_shop, limit = 50, skip = 0}) {
+    static async findAllDraftsForShop({product_shop, limit = 50, skip = 0}) { 
         const query = {product_shop, isDraft: true}
         return await findAllDraftsForShop({query, limit, skip})
     }
