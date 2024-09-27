@@ -3,7 +3,7 @@
 const { NotFoundError } = require('../core/error.response')
 const Comment = require('../models/comment.model')
 const { convertToObjectIdMongodb } = require('../utils')
-
+const { findProduct } = require('../models/repositories.js/product.repo')
 /*
     key feature: Comment Service
     + add comment [User, Shop]
@@ -102,6 +102,52 @@ class CommentService {
         })
 
         return comments
+    }
+
+    static async deleteComments({
+        commentId, productId
+    }) {
+        // check product exist
+        const foundProduct = await findProduct({
+            product_id: productId
+        })
+
+        if (!foundProduct) throw new NotFoundError('Product Not Found!')
+
+        // 1. xac dinh gia tri left va right cua comment xoa
+        const comment = await Comment.findById(commentId)
+        if (!comment) throw new NotFoundError('Comment Not Found!')
+        
+        console.log(Comment)
+
+        const leftValue = comment.comment_left
+        const rightValue = comment.comment_right
+
+        // 2. tinh width
+        const width = rightValue - leftValue + 1
+
+        // 3. xoa commemts
+        await Comment.deleteMany({
+            comment_productId: convertToObjectIdMongodb(productId),
+            comment_left: {$gte: leftValue, $lte: rightValue}
+        })
+
+        // 4. update lai left va right
+        await Comment.updateMany({
+            comment_productId: convertToObjectIdMongodb(productId),
+            comment_right: {$gt: rightValue}
+        }, {
+            $inc: {comment_right: -width}
+        })
+
+        await Comment.updateMany({
+            comment_productId: convertToObjectIdMongodb(productId),
+            comment_left: {$gt: rightValue}
+        }, {
+            $inc: {comment_left: -width}
+        })
+
+        return true
     }
 }
 
