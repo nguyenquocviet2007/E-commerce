@@ -1,7 +1,7 @@
 'use strict'
 
 const {product, clothing, electronic, furniture} = require('../models/product.model')
-const {BadRequestRequestError} = require('../core/error.response')
+const {BadRequestRequestError, NotFoundError} = require('../core/error.response')
 const { 
     findAllDraftsForShop, 
     publishProductByShop,
@@ -14,6 +14,8 @@ const {
 } = require('../models/repositories.js/product.repo')
 const { removeUndefineObject, updateNestedObjectParser } = require('../utils')
 const { insertInventory } = require('../models/repositories.js/inventory.repo')
+const { pushNotiToSystem } = require('./notification.service')
+const shopModel = require('../models/shop.model')
 // define Factory class to create product
 
 class ProductFactory {
@@ -96,11 +98,25 @@ class Product {
 
         if(newProduct) {
             // Insert Inventory
-            await insertInventory({
+            const invenData = await insertInventory({
                 product_id: newProduct._id,
                 shop_id: this.product_shop,
                 stock: this.product_quantity
             })
+
+            const shop = await shopModel.findById(this.product_shop)
+            if (!shop) throw new NotFoundError('Shop not found')
+            // push noti to system
+            pushNotiToSystem({
+                type: 'SHOP-001',
+                receiverId: 1,
+                senderId: this.product_shop,
+                options: {
+                    product_name: this.product_name,
+                    shop_name: shop.name
+                }
+            }).then(rs => console.log(rs))
+            .catch(console.error)
         }
 
         return newProduct
