@@ -34,7 +34,7 @@ const messageService = {
                 channel.consume(notiQueue, msg => {
                     console.log(`Send notificationQueue successfully process::`, msg.content.toString())
                     channel.ack(msg)
-                })
+                }) 
             }, timeExpired)*/
 
             // 2. logic Error   
@@ -51,8 +51,8 @@ const messageService = {
                     // console.error('Send notification failed: ', error)
                     channel.nack(msg, false, false)
                     /*
-                        doi so 1 - nack: negative acknowledgement
-                        thong bao loi cua hang doi truoc do
+                        nack: negative acknowledgement
+                        doi so 1: thong bao loi cua hang doi truoc do
                         doi so 2: chi dinh co nen sap xep lai hay khong
                                   false: message se khong dua vao hang doi ban dau, ma day vao hang doi loi
                                   true: message se bi day lai vao hang doi ban dau

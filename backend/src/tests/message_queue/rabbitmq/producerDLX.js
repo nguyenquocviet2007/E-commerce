@@ -10,7 +10,7 @@ const log = console.log
 
 const runProducer = async() => {
     try {
-        const connection = await amqp.connect('amqp://guest:quocviet01@localhost')
+        const connection = await amqp.connect('amqp://guest:12345@localhost')
         const channel = await connection.createChannel()
 
         const notificationExchange = 'notificationEx' // khai bao 1 notificationEx direct

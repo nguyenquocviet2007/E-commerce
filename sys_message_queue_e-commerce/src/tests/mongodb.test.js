@@ -1,7 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose')
-const connectString = 'mongodb://localhost:27018/e-commerce'
+const connectString = 'mongodb://localhost:27017/e-commerce'
 
 const TestSchema = new mongoose.Schema({
     name: String
@@ -11,7 +11,6 @@ const Test = mongoose.model('Test', TestSchema)
 
 describe('Mongoose Connection', () => {
     let connection
-
     // truoc khi bat dau
     beforeAll(async() => {
         connection = await mongoose.connect(connectString)

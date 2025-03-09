@@ -3,7 +3,7 @@ const amqp = require('amqplib')
 
 
 async function consumerOrderedMessage() {
-    const connection = await amqp.connect('amqp://guest:quocviet01@localhost')
+    const connection = await amqp.connect('amqp://guest:12345@localhost')
     const channel = await connection.createChannel()
 
     const queueName = 'test-topic' // name of channel
@@ -15,7 +15,7 @@ async function consumerOrderedMessage() {
         const message = `ordered-queued-message::${i}`
         console.log(`message: ${message}`)
         channel.sendToQueue(queueName, Buffer.from(message), {
-            persistent: true
+            persistent: true //
         })
     }
 

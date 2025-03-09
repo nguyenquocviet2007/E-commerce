@@ -4,7 +4,7 @@ const message = "New Product: Title new product"
 
 const runProducer = async() => {
     try {
-        const connection = await amqp.connect('amqp://guest:quocviet01@localhost')
+        const connection = await amqp.connect('amqp://guest:12345@localhost')
         const channel = await connection.createChannel()
 
         const queueName = 'test-topic' // name of channel

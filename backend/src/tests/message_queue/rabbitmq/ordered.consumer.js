@@ -3,7 +3,7 @@ const amqp = require('amqplib')
 
 //
 async function consumerOrderedMessage() {
-    const connection = await amqp.connect('amqp://guest:quocviet01@localhost')
+    const connection = await amqp.connect('amqp://guest:12345@localhost')
     const channel = await connection.createChannel()
 
     const queueName = 'test-topic' // name of channel
@@ -12,6 +12,7 @@ async function consumerOrderedMessage() {
     })
 
     // Set prefetch to 1 to ensure only one ack a time
+    // Đảm bảo mỗi tác vụ chỉ thực hiện 1 lần -- Đảm bảo rằng queue thực hiện theo thứ tự
     channel.prefetch(1)
     
     channel.consume(queueName, msg => {
